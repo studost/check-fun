@@ -20,27 +20,27 @@ import (
 	"flag"
 	"fmt"
 	"github.com/fractalcat/nagiosplugin"
-	"os"
-        "math/rand"
-        "time"
+	"math/rand"
+	"time"
 )
 
 //FLAGS
-var warning *int
-var critical *int
-var message *string
+var warning int
+var critical int
+
+//var message string
 
 // FLAG INIT
 func init() {
-	warning = flag.String("warning", "<INT>", "Threshold for WARNING (int)")
-	critical = flag.String("critical", "<INT>", "Threshold for CRITICAL (int)")
-	message = flag.String("message", "<message>", "A simple message")
+	flag.IntVar(&warning, "warning", 80, "Threshold for WARNING (int)")
+	flag.IntVar(&critical, "critical", 90, "Threshold for CRITICAL (int)")
+	//message = flag.String("message", "<message>", "A simple message")
 }
 
 func main() {
-        rand.Seed(time.Now().UTC().UnixNano())
+	rand.Seed(time.Now().UTC().UnixNano())
 	flag.Parse()
-	checkArguments()
+	//checkArguments()
 
 	check := nagiosplugin.NewCheck()
 	defer check.Finish()
@@ -52,25 +52,32 @@ func main() {
 	fmt.Println(random_result)
 
 	if random_result > critical {
-		nagiosplugin.Exit(nagiosplugin.CRITICAL, fmt.Sprintf("%g", random_result)+" is greater than "+*critical)
-	}
-	if random_result > warning {
-		nagiosplugin.Exit(nagiosplugin.WARNING, fmt.Sprintf("%g", random_result)+" is greater than "+*warning)
+		nagiosplugin.Exit(nagiosplugin.CRITICAL, fmt.Sprintf("%d", random_result)+" is by way greater than "+fmt.Sprintf("%d", critical))
+	} else if random_result > warning {
+		nagiosplugin.Exit(nagiosplugin.WARNING, fmt.Sprintf("%d", random_result)+" is a little bit greater than "+fmt.Sprintf("%d", warning))
 	} else {
-		nagiosplugin.Exit(nagiosplugin.OK, fmt.Sprintf("%g", random_result)+" is below all thresholds")
+		nagiosplugin.Exit(nagiosplugin.OK, fmt.Sprintf("%d", random_result)+" is really below all thresholds")
 	}
 
 	// check.AddResult(nagiosplugin.OK, "No stream alerts triggered for stream: " + stream_title)
 }
 
+/*
 func checkArguments() {
-	if *critical == "<INT>" {
+	if critical == "<INT>" {
 		fmt.Println("Usage:")
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
 }
+*/
 
+/*///////////////////////////////////////////////
+FUNC RANDOM
+arg1 min int
+arg2 max int
+return result int
+/*/ //////////////////////////////////////////////
 func random(min, max int) int {
 	return rand.Intn(max-min) + min
 }
